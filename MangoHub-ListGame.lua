@@ -4,6 +4,7 @@ local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footag
 --// List game hỗ trợ
 local supportedGames = {
     ["Grow a Garden"] = 126884695634066,
+    ["Steal a brainrot"] = 109983668079237,
     ["DOORS"] = ID,
 }
 
