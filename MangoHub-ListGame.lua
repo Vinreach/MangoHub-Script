@@ -5,7 +5,7 @@ local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footag
 local supportedGames = {
     ["Grow a Garden"] = 126884695634066,
     ["Steal a brainrot"] = 109983668079237,
-    ["DOORS"] = ID,
+    ["DOORS"] = 7326934954,
 }
 
 local currentPlaceId = game.PlaceId
