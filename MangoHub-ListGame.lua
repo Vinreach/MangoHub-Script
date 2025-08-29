@@ -4,11 +4,11 @@ local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footag
 --// Danh sách game Vinreach
 local games = {
     -- Grow a Garden
-    [126884695634066] = "https://raw.githubusercontent.com/RoyRedRedVN/Script/refs/heads/main/MANGO-GAG.lua",
+    [126884695634066] = "https://raw.githubusercontent.com/RoyRedRedVN/Script/refs/heads/main/Mango-GAG.lua",
     -- Steal a brainrot
-    [109983668079237] = "https://raw.githubusercontent.com/RoyRedRedVN/Script/refs/heads/main/MANGO-SAB.lua",
+    [109983668079237] = "https://raw.githubusercontent.com/RoyRedRedVN/Script/refs/heads/main/Mango-SAB.lua",
     -- DOORS
-    [7326934954] = "https://raw.githubusercontent.com/RoyRedRedVN/Script/refs/heads/main/MANGO-DOORS.lua",
+    [7326934954] = "https://raw.githubusercontent.com/RoyRedRedVN/Script/refs/heads/main/Mango-DOORS.lua",
 }
 
 --// Hàm notify gọn
