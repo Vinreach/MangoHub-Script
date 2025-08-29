@@ -1,17 +1,12 @@
---// Load WindUI
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 
---// Danh sách game Vinreach
 local games = {
     -- Grow a Garden
-    [126884695634066] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/Mango-GAG.lua",
+    [126884695634066] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-GAG.lua",
     -- Steal a brainrot
-    [109983668079237] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/Mango-SAB.lua",
-    -- DOORS
-    [7326934954] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/Mango-DOORS.lua",
+    [109983668079237] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-SAB.lua",
 }
 
---// Hàm notify gọn
 local function notify(title, content, icon)
     WindUI:Notify({
         Title = title,
@@ -21,7 +16,6 @@ local function notify(title, content, icon)
     })
 end
 
---// Check game
 local scriptLink = games[game.PlaceId]
 
 if scriptLink then
