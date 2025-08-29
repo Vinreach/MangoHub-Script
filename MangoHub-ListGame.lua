@@ -1,38 +1,34 @@
 --// Load WindUI
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 
---// List game hỗ trợ
-local supportedGames = {
-    ["Grow a Garden"] = 126884695634066,
-    ["Steal a brainrot"] = 109983668079237,
-    ["DOORS"] = 7326934954,
+--// Danh sách game Vinreach
+local games = {
+    -- Grow a Garden
+    [126884695634066] = "https://raw.githubusercontent.com/RoyRedRedVN/Script/refs/heads/main/MANGO-GAG.lua",
+    -- Steal a brainrot
+    [109983668079237] = "https://raw.githubusercontent.com/RoyRedRedVN/Script/refs/heads/main/MANGO-SAB.lua",
+    -- DOORS
+    [7326934954] = "https://raw.githubusercontent.com/RoyRedRedVN/Script/refs/heads/main/MANGO-DOORS.lua",
 }
 
-local currentPlaceId = game.PlaceId
-local isSupported = false
-
-for name, id in pairs(supportedGames) do
-    if currentPlaceId == id then
-        WindUI:Notify({
-            Title = "✅ Supported Game",
-            Content = "Detected: " .. name,
-            Duration = 3,
-            Icon = "check"
-        })
-
-        isSupported = true
-
-        --// Load Key System của Red
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/RoyRedRedVN/Script/refs/heads/main/Mango-GAG"))()
-        break
-    end
+--// Hàm notify gọn
+local function notify(title, content, icon)
+    WindUI:Notify({
+        Title = title,
+        Content = content,
+        Duration = 3,
+        Icon = icon
+    })
 end
 
-if not isSupported then
-    WindUI:Notify({
-        Title = "Notification Warning",
-        Content = "🚫 Your current game is not supported.",
-        Duration = 3,
-        Icon = "warning",
-    })
+--// Check game
+local scriptLink = games[game.PlaceId]
+
+if scriptLink then
+    notify("✅ Supported Game", "Detected game!", "check")
+    pcall(function()
+        loadstring(game:HttpGet(scriptLink))()
+    end)
+else
+    notify("🚫 Not Supported", "Your current game is not supported.", "warning")
 end
