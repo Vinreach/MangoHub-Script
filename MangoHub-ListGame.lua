@@ -5,6 +5,9 @@ local games = {
     [126884695634066] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-GAG.lua",
     -- Steal a brainrot
     [109983668079237] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-SAB.lua",
+    -- 99 days in the forest
+    [79546208627805] =
+"https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-99DITF.lua",
 }
 
 local function notify(title, content, icon)
