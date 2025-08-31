@@ -8,6 +8,9 @@ local games = {
     -- 99 days in the forest
     [79546208627805] =
 "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-99DITF.lua",
+    -- Doors
+    [2440500124] =
+"https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-DOORS.lua",
 }
 
 local function notify(title, content, icon)
