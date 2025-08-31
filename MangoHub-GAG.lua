@@ -1,5 +1,5 @@
 -- =================================
--- 🟣 MangoHub Full Auto Mobile (Settings Dark/Light + Language, No Water, Misc Empty)
+-- 🟣 MangoHub Full Auto Mobile (Paragraph Group + Auto Sell Teleport + Settings Tab)
 -- =================================
 
 local Players = game:GetService("Players")
@@ -20,10 +20,10 @@ local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footag
 getgenv().AutoClickSeedPack = false
 getgenv().AutoOpenMode = "None"
 getgenv().AutoSellInventory = false
-getgenv().AutoBuySeed = false
-getgenv().SeedTier = "Tier 1"
 getgenv().AutoPlant = false
 getgenv().PlantMode = "Player Positions"
+getgenv().AutoBuySeed = false
+getgenv().SeedTier = "Tier 1"
 getgenv().AutoBuyPetEgg = false
 getgenv().AutoBuyGear = false
 
@@ -35,86 +35,80 @@ local Tier2Seeds = {"Potato","Cocomango","Broccoli","Brussels Sprouts"}
 local GearList = {"Watering Can","Trowel","Recall Wrench","Basic Sprinkler","Advanced Sprinkler","Godly Sprinkler","Master Sprinkler","Grandmaster Sprinkler","Magnifying Glass","Tanning Mirror","Cleaning Spray","Cleansing Pet Shard","Favorite Tool","Harvest Tool","Friendship Pot","Level-Up Lollipop","Trading Ticket","Medium Treat","Medium Toy"}
 local PetEggs = {"Common Egg","Uncommon Egg","Rare Egg","Legendary Egg","Bug Egg"}
 
-local SelectedSeeds = {}
-local SelectedPets = {}
-local SelectedGears = {}
+local SellPosition = Vector3.new(100,5,200) -- tọa độ điểm bán
 
 -- =========================
--- Create Window
+-- Create Window & Sections
 -- =========================
 local Window = WindUI:CreateWindow({Title="MangoHub Full Auto",Icon="zap",Author="Vinreach",Folder="Mango",Size=UDim2.fromOffset(340,400),Theme="Dark"})
 local MainSection = Window:Section({Title="Main Features",Opened=true})
-local AutoTab = MainSection:Tab({Title="Automatic",Icon="mouse-pointer-click"})
+local AutoSection = Window:Section({Title="Automatic Features",Opened=true})
+local SettingsSection = Window:Section({Title="Settings",Opened=true})
 local MiscSection = Window:Section({Title="Misc",Opened=true}) -- trống
 
 -- =========================
--- Auto Click / Open
+-- MainTab
 -- =========================
-AutoTab:Toggle({Title="Auto Click Seed Pack",Desc="Click items automatically",Value=false,Callback=function(state)getgenv().AutoClickSeedPack=state end})
-AutoTab:Dropdown({Title="Select Mode Open",Desc="Choose item",Values={"None","Seed Pack","Chest"},Callback=function(val)getgenv().AutoOpenMode=val end})
+local MainTab = MainSection:Tab({Title="Main",Icon="house"})
+MainTab:Button({
+    Title="Join Discord",
+    Desc="Click để tham gia Discord",
+    Callback=function()
+        local url="https://discord.gg/yourserver"
+        setclipboard(url)
+        WindUI:Notify({Title="Discord",Content="Link copied!",Icon="check",Duration=2})
+    end
+})
+MainTab:Paragraph({Title="Coming Soon",Desc="Tính năng mới sẽ xuất hiện ở đây!",Image="sparkles",Color=Color3.fromHex("#00ffcc")})
 
 -- =========================
--- Auto Sell
+-- AutoTab
 -- =========================
-AutoTab:Toggle({Title="Auto Sell Inventory",Desc="Sell all items automatically",Value=false,Callback=function(state)getgenv().AutoSellInventory=state end})
+local AutoTab = AutoSection:Tab({Title="Automatic",Icon="mouse-pointer-click"})
+
+-- Paragraph Auto Click
+AutoTab:Paragraph({Title="[ AUTOMATIC: AUTO CLICK ]",Desc="Tự động click Seed Pack / Chest",Image="mouse-pointer-click",Color=Color3.fromHex("#ffaa00")})
+AutoTab:Toggle({Title="Enable Auto Click",Desc="",Value=false,Callback=function(state)getgenv().AutoClickSeedPack=state end})
+AutoTab:Dropdown({Title="Mode Open",Desc="",Values={"None","Seed Pack","Chest"},Callback=function(val)getgenv().AutoOpenMode=val end})
+
+-- Paragraph Auto Sell
+AutoTab:Paragraph({Title="[ AUTOMATIC: AUTO SELL ]",Desc="Auto Sell Inventory: teleport tới điểm bán rồi về chỗ cũ",Image="credit-card",Color=Color3.fromHex("#ff5555")})
+AutoTab:Toggle({Title="Enable Auto Sell",Desc="",Value=false,Callback=function(state)getgenv().AutoSellInventory=state end})
+
+-- Paragraph Auto Plant
+AutoTab:Paragraph({Title="[ AUTOMATIC: AUTO PLANT ]",Desc="Tự động trồng các seed",Image="seedling",Color=Color3.fromHex("#00ff66")})
+AutoTab:Toggle({Title="Enable Auto Plant",Desc="",Value=false,Callback=function(state)getgenv().AutoPlant=state end})
+AutoTab:Dropdown({Title="Plant Mode",Desc="",Values={"Player Positions","Random Can Plant"},Callback=function(val)getgenv().PlantMode=val end})
+
+-- Paragraph Auto Buy
+AutoTab:Paragraph({Title="[ AUTOMATIC: AUTO BUY ]",Desc="Tự động mua Seed / Pet / Gear",Image="shopping-cart",Color=Color3.fromHex("#ffaa00")})
+AutoTab:Toggle({Title="Auto Buy Seed",Desc="",Value=false,Callback=function(state)getgenv().AutoBuySeed=state end})
+AutoTab:Toggle({Title="Auto Buy Pet Egg",Desc="",Value=false,Callback=function(state)getgenv().AutoBuyPetEgg=state end})
+AutoTab:Toggle({Title="Auto Buy Gear",Desc="",Value=false,Callback=function(state)getgenv().AutoBuyGear=state end})
 
 -- =========================
--- Auto Plant
+-- SettingsTab
 -- =========================
-AutoTab:Toggle({Title="Auto Plant Seed",Desc="Plant seeds automatically",Value=false,Callback=function(state)getgenv().AutoPlant=state end})
-AutoTab:Dropdown({Title="Plant Mode",Desc="Choose planting mode",Values={"Player Positions","Random Can Plant"},Callback=function(val)getgenv().PlantMode=val end})
-
--- =========================
--- Auto Buy Pet / Gear / Seed
--- =========================
-AutoTab:Toggle({Title="Auto Buy Seed",Desc="Buy seeds automatically",Value=false,Callback=function(state)getgenv().AutoBuySeed=state end})
-AutoTab:Toggle({Title="Auto Buy Pet Egg",Desc="Buy pet eggs automatically",Value=false,Callback=function(state)getgenv().AutoBuyPetEgg=state end})
-AutoTab:Toggle({Title="Auto Buy Gear",Desc="Buy gears automatically",Value=false,Callback=function(state)getgenv().AutoBuyGear=state end})
-
--- =========================
--- Settings Toggle
--- =========================
-AutoTab:Toggle({
-    Title = "Settings",
-    Desc = "Chỉnh Dark/Light Mode & Language",
-    Value = DarkMode,
-    Callback = function(state)
-        DarkMode = state
+local SettingsTab = SettingsSection:Tab({Title="Settings",Icon="cog"})
+SettingsTab:Toggle({
+    Title="Dark / Light Mode",
+    Desc="Chuyển đổi giao diện",
+    Value=DarkMode,
+    Callback=function(state)
+        DarkMode=state
         Window:ChangeTheme(DarkMode and "Dark" or "Light")
-        WindUI:Notify({Title="Settings", Content=DarkMode and "Dark Mode" or "Light Mode", Icon="zap", Duration=2})
+        WindUI:Notify({Title="Settings",Content=DarkMode and "Dark Mode" or "Light Mode",Icon="zap",Duration=2})
     end
 })
-
--- Language Dropdown
-AutoTab:Dropdown({
-    Title = "Language",
-    Desc = "Chọn ngôn ngữ UI",
-    Values = {"Vietnamese","English"},
-    Callback = function(val)
-        CurrentLanguage = val
-        WindUI:Notify({Title="Settings", Content="Language set to "..CurrentLanguage, Icon="zap", Duration=2})
+SettingsTab:Dropdown({
+    Title="Language",
+    Desc="Chọn ngôn ngữ UI",
+    Values={"Vietnamese","English"},
+    Callback=function(val)
+        CurrentLanguage=val
+        WindUI:Notify({Title="Settings",Content="Language set to "..CurrentLanguage,Icon="zap",Duration=2})
     end
 })
-
--- =========================
--- Plant Locations Function
--- =========================
-local function getPlantLocations()
-    local farmRoot = Workspace:FindFirstChild("Farm")
-    if not farmRoot then return {} end
-    local farmFolder = farmRoot:FindFirstChild("Farm")
-    if not farmFolder then return {} end
-    local importantFolder = farmFolder:FindFirstChild("Important")
-    if not importantFolder then return {} end
-    local plantFolder = importantFolder:FindFirstChild("Plant_Locations")
-    if not plantFolder then return {} end
-    local canPlantParts = {}
-    for _, model in pairs(plantFolder:GetChildren()) do
-        local canPart = model:FindFirstChild("Can_Plant")
-        if canPart then table.insert(canPlantParts,canPart) end
-    end
-    return canPlantParts
-end
 
 -- =========================
 -- Auto Loop
@@ -135,44 +129,48 @@ task.spawn(function()
             end
         end
 
-        -- Auto Sell
+        -- Auto Sell (teleport tới điểm bán rồi quay về)
         if getgenv().AutoSellInventory then
+            local originalPos = hrp.Position
+            hrp.CFrame = CFrame.new(SellPosition)
+            task.wait(2)
             local SellInventory = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Sell_Inventory")
             SellInventory:FireServer()
-        end
-
-        -- Auto Buy Seed
-        if getgenv().AutoBuySeed then
-            local BuySeed = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuySeedStock")
-            for _, seedName in ipairs(Tier1Seeds) do BuySeed:FireServer(getgenv().SeedTier, seedName) end
-            for _, seedName in ipairs(Tier2Seeds) do BuySeed:FireServer(getgenv().SeedTier, seedName) end
+            task.wait(0.5)
+            hrp.CFrame = CFrame.new(originalPos)
         end
 
         -- Auto Plant
         if getgenv().AutoPlant then
             local PlantEvent = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("PlantSeed")
-            for _, seedName in ipairs(Tier1Seeds) do
-                if getgenv().PlantMode=="Player Positions" then
-                    PlantEvent:FireServer(seedName, hrp.Position)
-                else
-                    local locations = getPlantLocations()
-                    if #locations>0 then
-                        local randomSpot = locations[math.random(1,#locations)]
-                        PlantEvent:FireServer(seedName, randomSpot.Position)
+            local allSeeds = {}
+            for _, s in ipairs(Tier1Seeds) do table.insert(allSeeds,s) end
+            for _, s in ipairs(Tier2Seeds) do table.insert(allSeeds,s) end
+            for _, seed in ipairs(allSeeds) do
+                local pos = hrp.Position
+                if getgenv().PlantMode=="Random Can Plant" then
+                    local locations={}
+                    local farmRoot = Workspace:FindFirstChild("Farm")
+                    if farmRoot then
+                        local plantFolder = farmRoot:FindFirstChild("Farm") and farmRoot.Farm:FindFirstChild("Important") and farmRoot.Farm.Important:FindFirstChild("Plant_Locations")
+                        if plantFolder then
+                            for _, model in pairs(plantFolder:GetChildren()) do
+                                local canPart = model:FindFirstChild("Can_Plant")
+                                if canPart then table.insert(locations,canPart.Position) end
+                            end
+                        end
                     end
+                    if #locations>0 then pos=locations[math.random(1,#locations)] end
                 end
+                PlantEvent:FireServer(seed,pos)
             end
-            for _, seedName in ipairs(Tier2Seeds) do
-                if getgenv().PlantMode=="Player Positions" then
-                    PlantEvent:FireServer(seedName, hrp.Position)
-                else
-                    local locations = getPlantLocations()
-                    if #locations>0 then
-                        local randomSpot = locations[math.random(1,#locations)]
-                        PlantEvent:FireServer(seedName, randomSpot.Position)
-                    end
-                end
-            end
+        end
+
+        -- Auto Buy Seed
+        if getgenv().AutoBuySeed then
+            local BuySeed = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuySeedStock")
+            for _, seed in ipairs(Tier1Seeds) do BuySeed:FireServer(getgenv().SeedTier,seed) end
+            for _, seed in ipairs(Tier2Seeds) do BuySeed:FireServer(getgenv().SeedTier,seed) end
         end
 
         -- Auto Buy Pet Egg
