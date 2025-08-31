@@ -1,10 +1,9 @@
 -- =================================
--- 🟣 MangoHub Full Auto Mobile Fix All (No ESP)
+-- 🟣 MangoHub Full Auto Mobile (Settings Dark/Light + Language, No Water, Misc Empty)
 -- =================================
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
-local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
@@ -23,53 +22,79 @@ getgenv().AutoOpenMode = "None"
 getgenv().AutoSellInventory = false
 getgenv().AutoBuySeed = false
 getgenv().SeedTier = "Tier 1"
-getgenv().SeedName = "Carrot"
 getgenv().AutoPlant = false
-getgenv().PlantMode = "Player Positions" -- or "Random Can Plant"
+getgenv().PlantMode = "Player Positions"
 getgenv().AutoBuyPetEgg = false
-getgenv().SelectedPetEgg = "Common Egg"
 getgenv().AutoBuyGear = false
-getgenv().SelectedGear = "Watering Can"
-getgenv().AutoWaterCan = false
-getgenv().WaterPosition = Vector3.new(-1.1754,0.1355,66.7037)
-getgenv().AutoSellTeleport = false
-getgenv().SellPosition = CFrame.new(86.3885,4.2662,0.9605)
-getgenv().ReturnPosition = hrp.CFrame
+
+local DarkMode = true
+local CurrentLanguage = "Vietnamese"
 
 local Tier1Seeds = {"Carrot","Strawberry","Blueberry","Tomato","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon Fruit","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk","Ember Lily","Sugar Apple","Burning Bud","Giant Pinecone","Elder Strawberry","Romanesco"}
 local Tier2Seeds = {"Potato","Cocomango","Broccoli","Brussels Sprouts"}
 local GearList = {"Watering Can","Trowel","Recall Wrench","Basic Sprinkler","Advanced Sprinkler","Godly Sprinkler","Master Sprinkler","Grandmaster Sprinkler","Magnifying Glass","Tanning Mirror","Cleaning Spray","Cleansing Pet Shard","Favorite Tool","Harvest Tool","Friendship Pot","Level-Up Lollipop","Trading Ticket","Medium Treat","Medium Toy"}
 local PetEggs = {"Common Egg","Uncommon Egg","Rare Egg","Legendary Egg","Bug Egg"}
 
--- =========================
--- Create Window (mobile size)
--- =========================
-local Window = WindUI:CreateWindow({Title="MangoHub Full Auto",Icon="zap",Author="Vinreach",Folder="Mango",Size=UDim2.fromOffset(380,650),Theme="Dark"})
-local MainSection = Window:Section({Title="Main Features",Opened=true})
-local AutoTab = MainSection:Tab({Title="Automatic",Icon="mouse-pointer-click"})
+local SelectedSeeds = {}
+local SelectedPets = {}
+local SelectedGears = {}
 
 -- =========================
--- Automatic Tab
+-- Create Window
+-- =========================
+local Window = WindUI:CreateWindow({Title="MangoHub Full Auto",Icon="zap",Author="Vinreach",Folder="Mango",Size=UDim2.fromOffset(340,400),Theme="Dark"})
+local MainSection = Window:Section({Title="Main Features",Opened=true})
+local AutoTab = MainSection:Tab({Title="Automatic",Icon="mouse-pointer-click"})
+local MiscSection = Window:Section({Title="Misc",Opened=true}) -- trống
+
+-- =========================
+-- Auto Click / Open
 -- =========================
 AutoTab:Toggle({Title="Auto Click Seed Pack",Desc="Click items automatically",Value=false,Callback=function(state)getgenv().AutoClickSeedPack=state end})
 AutoTab:Dropdown({Title="Select Mode Open",Desc="Choose item",Values={"None","Seed Pack","Chest"},Callback=function(val)getgenv().AutoOpenMode=val end})
 
+-- =========================
+-- Auto Sell
+-- =========================
 AutoTab:Toggle({Title="Auto Sell Inventory",Desc="Sell all items automatically",Value=false,Callback=function(state)getgenv().AutoSellInventory=state end})
 
-AutoTab:Toggle({Title="Auto Buy Seed",Desc="Buy seed automatically",Value=false,Callback=function(state)getgenv().AutoBuySeed=state end})
-AutoTab:Dropdown({Title="Select Seed Tier",Desc="Tier 1 or 2",Values={"Tier 1","Tier 2"},Callback=function(val)getgenv().SeedTier=val getgenv().SeedName=(val=="Tier 1" and Tier1Seeds or Tier2Seeds)[1] end})
-AutoTab:Dropdown({Title="Select Seed Name",Desc="Seed will auto buy and plant",Values=Tier1Seeds,Callback=function(val)getgenv().SeedName=val end})
-
+-- =========================
+-- Auto Plant
+-- =========================
 AutoTab:Toggle({Title="Auto Plant Seed",Desc="Plant seeds automatically",Value=false,Callback=function(state)getgenv().AutoPlant=state end})
 AutoTab:Dropdown({Title="Plant Mode",Desc="Choose planting mode",Values={"Player Positions","Random Can Plant"},Callback=function(val)getgenv().PlantMode=val end})
 
-AutoTab:Toggle({Title="Auto Buy Pet Egg",Desc="Buy selected egg automatically",Value=false,Callback=function(state)getgenv().AutoBuyPetEgg=state end})
-AutoTab:Dropdown({Title="Select Pet Egg",Desc="Choose egg type",Values=PetEggs,Callback=function(val)getgenv().SelectedPetEgg=val end})
+-- =========================
+-- Auto Buy Pet / Gear / Seed
+-- =========================
+AutoTab:Toggle({Title="Auto Buy Seed",Desc="Buy seeds automatically",Value=false,Callback=function(state)getgenv().AutoBuySeed=state end})
+AutoTab:Toggle({Title="Auto Buy Pet Egg",Desc="Buy pet eggs automatically",Value=false,Callback=function(state)getgenv().AutoBuyPetEgg=state end})
+AutoTab:Toggle({Title="Auto Buy Gear",Desc="Buy gears automatically",Value=false,Callback=function(state)getgenv().AutoBuyGear=state end})
 
-AutoTab:Toggle({Title="Auto Buy Gear",Desc="Buy selected gear automatically",Value=false,Callback=function(state)getgenv().AutoBuyGear=state end})
-AutoTab:Dropdown({Title="Select Gear",Desc="Choose gear",Values=GearList,Callback=function(val)getgenv().SelectedGear=val end})
+-- =========================
+-- Settings Toggle
+-- =========================
+AutoTab:Toggle({
+    Title = "Settings",
+    Desc = "Chỉnh Dark/Light Mode & Language",
+    Value = DarkMode,
+    Callback = function(state)
+        DarkMode = state
+        Window:ChangeTheme(DarkMode and "Dark" or "Light")
+        WindUI:Notify({Title="Settings", Content=DarkMode and "Dark Mode" or "Light Mode", Icon="zap", Duration=2})
+    end
+})
 
-AutoTab:Toggle({Title="Auto Water Can",Desc="Automatically water tree",Value=false,Callback=function(state)getgenv().AutoWaterCan=state end})
+-- Language Dropdown
+AutoTab:Dropdown({
+    Title = "Language",
+    Desc = "Chọn ngôn ngữ UI",
+    Values = {"Vietnamese","English"},
+    Callback = function(val)
+        CurrentLanguage = val
+        WindUI:Notify({Title="Settings", Content="Language set to "..CurrentLanguage, Icon="zap", Duration=2})
+    end
+})
 
 -- =========================
 -- Plant Locations Function
@@ -97,6 +122,7 @@ end
 task.spawn(function()
     while true do
         task.wait(0.5)
+
         -- Auto Click
         if getgenv().AutoClickSeedPack and getgenv().AutoOpenMode~="None" then
             local backpack = player:FindFirstChild("Backpack")
@@ -112,36 +138,38 @@ task.spawn(function()
         -- Auto Sell
         if getgenv().AutoSellInventory then
             local SellInventory = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Sell_Inventory")
-            if getgenv().AutoSellTeleport then
-                local oldCFrame = hrp.CFrame
-                hrp.CFrame = getgenv().SellPosition
-                task.wait(2)
-                SellInventory:FireServer()
-                task.wait(0.5)
-                hrp.CFrame = oldCFrame
-            else
-                SellInventory:FireServer()
-            end
+            SellInventory:FireServer()
         end
 
         -- Auto Buy Seed
         if getgenv().AutoBuySeed then
             local BuySeed = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuySeedStock")
-            BuySeed:FireServer(getgenv().SeedTier,getgenv().SeedName)
+            for _, seedName in ipairs(Tier1Seeds) do BuySeed:FireServer(getgenv().SeedTier, seedName) end
+            for _, seedName in ipairs(Tier2Seeds) do BuySeed:FireServer(getgenv().SeedTier, seedName) end
         end
 
-        -- Auto Plant Seed
+        -- Auto Plant
         if getgenv().AutoPlant then
-            local seeds = getgenv().SeedTier=="Tier 1" and Tier1Seeds or Tier2Seeds
-            if table.find(seeds,getgenv().SeedName) then
-                local PlantEvent = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("PlantSeed")
+            local PlantEvent = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("PlantSeed")
+            for _, seedName in ipairs(Tier1Seeds) do
                 if getgenv().PlantMode=="Player Positions" then
-                    PlantEvent:FireServer(getgenv().SeedName, hrp.Position)
-                elseif getgenv().PlantMode=="Random Can Plant" then
+                    PlantEvent:FireServer(seedName, hrp.Position)
+                else
                     local locations = getPlantLocations()
                     if #locations>0 then
                         local randomSpot = locations[math.random(1,#locations)]
-                        PlantEvent:FireServer(getgenv().SeedName, randomSpot.Position)
+                        PlantEvent:FireServer(seedName, randomSpot.Position)
+                    end
+                end
+            end
+            for _, seedName in ipairs(Tier2Seeds) do
+                if getgenv().PlantMode=="Player Positions" then
+                    PlantEvent:FireServer(seedName, hrp.Position)
+                else
+                    local locations = getPlantLocations()
+                    if #locations>0 then
+                        local randomSpot = locations[math.random(1,#locations)]
+                        PlantEvent:FireServer(seedName, randomSpot.Position)
                     end
                 end
             end
@@ -150,19 +178,14 @@ task.spawn(function()
         -- Auto Buy Pet Egg
         if getgenv().AutoBuyPetEgg then
             local BuyEgg = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyPetEgg")
-            BuyEgg:FireServer(getgenv().SelectedPetEgg)
+            for _, egg in ipairs(PetEggs) do BuyEgg:FireServer(egg) end
         end
 
         -- Auto Buy Gear
         if getgenv().AutoBuyGear then
             local BuyGear = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyGearShop")
-            BuyGear:FireServer(getgenv().SelectedGear)
+            for _, gear in ipairs(GearList) do BuyGear:FireServer(gear) end
         end
 
-        -- Auto Water Can
-        if getgenv().AutoWaterCan then
-            local WaterRE = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Water_RE")
-            WaterRE:FireServer(getgenv().WaterPosition)
-        end
     end
 end)
