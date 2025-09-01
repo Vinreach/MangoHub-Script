@@ -25,10 +25,10 @@ end
 local scriptLink = games[game.PlaceId]
 
 if scriptLink then
-    notify("✅ Supported Game", "Detected game!", "check")
+    notify("Supported Game", "Detected game!", "check")
     pcall(function()
         loadstring(game:HttpGet(scriptLink))()
     end)
 else
-    notify("🚫 Not Supported", "Your current game is not supported.", "warning")
+    notify("Not Supported", "Your current game is not supported.", "warning")
 end
