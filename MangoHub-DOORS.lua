@@ -28,14 +28,9 @@ local GameLoader = {
 local CurrentGame = GameLoader[GameId]
 local GameName = CurrentGame and CurrentGame.Name or tostring(GameId)
 
-if not GameName == "DOORS" then
-    warn("Experiences other than this source will not support.")
-    print("If there is an error, it is because your experience does not support full functionality")
-    error("NOT SUPPORT!!!")
-    error("NOT SUPPORT!!!")
-    error("NOT SUPPORT!!!")
-    error("No support!!!, don't try to ask the developer to fix the error!!!")
-    warn("Found you using this source in another experience!!!")
+if GameId ~= 2440500124 then
+    warn("[MangoHub] Unsupported Experience")
+    error("This script only supports Doors!")
 end
 
 local Window = Library:CreateWindow({
