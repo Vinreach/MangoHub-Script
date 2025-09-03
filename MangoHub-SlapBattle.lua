@@ -12,7 +12,7 @@ for _,v in pairs({"AdminGUI","Ban","GRAB","SpecialGloveAccess","WalkSpeedChanged
         rs[v]:Destroy()
     end
 end
-if sp.StarterPlayerScripts:FindFirstChild("ClientAnticheat") then
+if sp:FindFirstChild("StarterPlayerScripts") and sp.StarterPlayerScripts:FindFirstChild("ClientAnticheat") then
     sp.StarterPlayerScripts.ClientAnticheat:Destroy()
 end
 
@@ -37,34 +37,35 @@ local Window = Rayfield:CreateWindow({
 -- ===========================
 local CombatTab = Window:CreateTab("Combat")
 
--- Auto Farm Slap (tele tới player)
-local autoFarm = false
+-- Auto Farm Teleport + Spam Click
+local autoFarmSpam = false
 CombatTab:CreateToggle({
-    Name = "Auto Farm Slap (Teleport)",
+    Name = "Auto Farm (Teleport + Spam Click)",
     CurrentValue = false,
     Callback = function(v)
-        autoFarm = v
+        autoFarmSpam = v
         task.spawn(function()
-            while autoFarm do
-                task.wait(0.3)
-                local lp = game.Players.LocalPlayer
+            while autoFarmSpam do
+                local lp = game:GetService("Players").LocalPlayer
                 local char = lp.Character or lp.CharacterAdded:Wait()
-
                 -- Auto equip first tool
-                if lp.Backpack:FindFirstChildOfClass("Tool") then
+                if lp.Backpack and lp.Backpack:FindFirstChildOfClass("Tool") then
                     lp.Backpack:FindFirstChildOfClass("Tool").Parent = char
                 end
-
+                -- Tele tới từng player và spam click
                 for _,plr in pairs(game.Players:GetPlayers()) do
+                    if not autoFarmSpam then break end
                     if plr ~= lp and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
                         char:PivotTo(plr.Character.HumanoidRootPart.CFrame * CFrame.new(0,0,3))
                         task.wait(0.1)
-                        pcall(function()
-                            firetouchinterest(char.HumanoidRootPart, plr.Character.HumanoidRootPart, 0)
-                            firetouchinterest(char.HumanoidRootPart, plr.Character.HumanoidRootPart, 1)
-                        end)
+                        for i = 1,5 do
+                            pcall(function() mouse1click() end)
+                            task.wait(0.05)
+                        end
+                        task.wait(1.1)
                     end
                 end
+                task.wait(0.2)
             end
         end)
     end,
@@ -80,13 +81,11 @@ CombatTab:CreateToggle({
         task.spawn(function()
             while standFarm do
                 task.wait(0.2)
-                local lp = game.Players.LocalPlayer
+                local lp = game:GetService("Players").LocalPlayer
                 local char = lp.Character or lp.CharacterAdded:Wait()
-
-                if lp.Backpack:FindFirstChildOfClass("Tool") then
+                if lp.Backpack and lp.Backpack:FindFirstChildOfClass("Tool") then
                     lp.Backpack:FindFirstChildOfClass("Tool").Parent = char
                 end
-
                 for _,plr in pairs(game.Players:GetPlayers()) do
                     if plr ~= lp and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
                         local dist = (plr.Character.HumanoidRootPart.Position - char.HumanoidRootPart.Position).Magnitude
@@ -139,7 +138,7 @@ CombatTab:CreateToggle({
 CombatTab:CreateButton({
     Name = "Stop & Kick Safe",
     Callback = function()
-        autoFarm, standFarm, hitbox = false, false, false
+        autoFarmSpam, standFarm, hitbox = false, false, false
         game.Players.LocalPlayer:Kick("Stopped AutoFarm - Safe Exit 😎")
     end,
 })
@@ -157,7 +156,6 @@ local function addESP(plr)
         hl.Parent = plr.Character
         hl.FillColor = Color3.fromRGB(255, 0, 0)
         hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-
         -- Billboard Name
         if plr.Character:FindFirstChild("Head") then
             local bb = Instance.new("BillboardGui")
@@ -167,7 +165,6 @@ local function addESP(plr)
             bb.StudsOffset = Vector3.new(0,2,0)
             bb.AlwaysOnTop = true
             bb.Parent = plr.Character
-
             local nameLabel = Instance.new("TextLabel", bb)
             nameLabel.Size = UDim2.new(1,0,1,0)
             nameLabel.BackgroundTransparency = 1
@@ -189,6 +186,8 @@ local function removeESP(plr)
     end
 end
 
+local espConnections = {}
+
 VisualTab:CreateToggle({
     Name = "ESP Players (Name + Highlight)",
     CurrentValue = false,
@@ -197,20 +196,34 @@ VisualTab:CreateToggle({
             for _,plr in pairs(game.Players:GetPlayers()) do
                 if plr ~= game.Players.LocalPlayer then
                     addESP(plr)
+                    if not espConnections[plr] then
+                        espConnections[plr] = plr.CharacterAdded:Connect(function()
+                            task.wait(1)
+                            addESP(plr)
+                        end)
+                    end
                 end
             end
-            game.Players.PlayerAdded:Connect(function(plr)
-                plr.CharacterAdded:Connect(function()
-                    task.wait(1)
-                    addESP(plr)
+            if not espConnections["PlayerAdded"] then
+                espConnections["PlayerAdded"] = game.Players.PlayerAdded:Connect(function(plr)
+                    espConnections[plr] = plr.CharacterAdded:Connect(function()
+                        task.wait(1)
+                        addESP(plr)
+                    end)
                 end)
-            end)
+            end
         else
             for _,plr in pairs(game.Players:GetPlayers()) do
                 if plr ~= game.Players.LocalPlayer then
                     removeESP(plr)
                 end
             end
+            for _,conn in pairs(espConnections) do
+                if typeof(conn) == "RBXScriptConnection" then
+                    conn:Disconnect()
+                end
+            end
+            espConnections = {}
         end
     end,
 })
@@ -221,21 +234,22 @@ VisualTab:CreateToggle({
 local FunTab = Window:CreateTab("Fun")
 
 FunTab:CreateButton({
-    Name = "TeleSlap All Players",
+    Name = "TeleSlap Spam Click (All Players)",
     Callback = function()
         local lp = game.Players.LocalPlayer
         local char = lp.Character or lp.CharacterAdded:Wait()
-
-        if lp.Backpack:FindFirstChildOfClass("Tool") then
+        if lp.Backpack and lp.Backpack:FindFirstChildOfClass("Tool") then
             lp.Backpack:FindFirstChildOfClass("Tool").Parent = char
         end
-
         for _,plr in pairs(game.Players:GetPlayers()) do
             if plr ~= lp and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
                 char:PivotTo(plr.Character.HumanoidRootPart.CFrame * CFrame.new(0,0,3))
-                task.wait(0.2)
-                pcall(function() mouse1click() end)
-                task.wait(0.3)
+                task.wait(0.1)
+                for i = 1,5 do
+                    pcall(function() mouse1click() end)
+                    task.wait(0.05)
+                end
+                task.wait(1.1)
             end
         end
     end,
@@ -263,13 +277,11 @@ AntiTab:CreateToggle({
                         hum:ChangeState(Enum.HumanoidStateType.GettingUp)
                         hum:ChangeState(Enum.HumanoidStateType.Physics)
                         hum:ChangeState(Enum.HumanoidStateType.None)
-
                         for _,v in pairs(char:GetDescendants()) do
                             if v:IsA("BallSocketConstraint") or v:IsA("HingeConstraint") then
                                 v:Destroy()
                             end
                         end
-
                         if char:FindFirstChild("HumanoidRootPart") then
                             for _,bv in pairs(char.HumanoidRootPart:GetChildren()) do
                                 if bv:IsA("BodyVelocity") or bv:IsA("VectorForce") then
@@ -283,3 +295,11 @@ AntiTab:CreateToggle({
         end
     end,
 })
+
+-- ===========================
+-- Auto Kick on Reset
+-- ===========================
+local lp = game.Players.LocalPlayer
+lp.CharacterAdded:Connect(function()
+    game.Players.LocalPlayer:Kick("AutoKick: Reset detected - Safe Exit 😎")
+end)
