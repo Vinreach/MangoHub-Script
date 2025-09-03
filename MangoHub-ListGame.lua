@@ -11,6 +11,8 @@ local games = {
     [2440500124] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-DOORS.lua",
     -- Arena Of Blox
     [7832036655] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-AOB.lua",
+    -- POOP
+    [7932671830] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-POOP.lua"
 }
 
 local scriptLink = games[game.PlaceId]
