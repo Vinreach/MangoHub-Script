@@ -2,31 +2,46 @@ local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footag
 
 local games = {
     -- Grow a Garden
-    [126884695634066] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-GAG.lua",
+    ["126884695634066"] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-GAG.lua",
     -- Steal a brainrot
-    [109983668079237] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-SAB.lua",
+    ["109983668079237"] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-SAB.lua",
     -- 99 days in the forest
-    [79546208627805] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-99DITF.lua",
+    ["79546208627805"] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-99DITF.lua",
     -- Doors
-    [2440500124] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-DOORS.lua",
+    ["2440500124"] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-DOORS.lua",
     -- Arena Of Blox
-    [7832036655] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-AOB.lua",
+    ["7832036655"] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-AOB.lua",
     -- POOP
-    [7932671830] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-POOP.lua",
-    -- SLAP BATTLE ( ANTI CHEAT IS REAL )
-    [2380077519] =
-"https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-SlapBattle.lua",
-    -- SLAP BATTLE ( BUT BAD ANTI CHEAT IS REAL )
-    [13741394801] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-SlapBattle.lua"
+    ["7932671830"] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-POOP.lua",
+    -- Slap Battle (AC thật)
+    ["2380077519"] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-SlapBattle.lua",
+    -- Slap Battle (AC nhẹ)
+    ["13741394801"] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-SlapBattle.lua"
 }
 
-local scriptLink = games[game.PlaceId] or games[game.GameId]
+local placeId = tostring(game.PlaceId)
+local gameId = tostring(game.GameId)
+local scriptLink = games[placeId] or games[gameId]
 
+-- Notify detect game
 WindUI:Notify({
     Title = scriptLink and "Supported Game" or "Not Supported",
     Content = scriptLink and "Detected game!" or "Your current game is not supported.",
-    Duration = 3,
+    Duration = 5,
     Icon = scriptLink and "check" or "warning"
 })
 
-if scriptLink then pcall(loadstring, game:HttpGet(scriptLink)) end
+if scriptLink then
+    local success, result = pcall(function()
+        loadstring(game:HttpGet(scriptLink))()
+    end)
+
+    if not success then
+        WindUI:Notify({
+            Title = "Error Loading Script",
+            Content = tostring(result),
+            Duration = 8,
+            Icon = "x"
+        })
+    end
+end
