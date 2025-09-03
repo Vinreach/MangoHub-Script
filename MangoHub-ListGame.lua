@@ -14,7 +14,7 @@ local games = {
     -- POOP
     [7932671830] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-POOP.lua",
     -- SLAP BATTLE ( ANTI CHEAT IS REAL )
-    [13741394801] =
+    [2380077519] =
 "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-SlapBattle.lua",
     -- SLAP BATTLE ( BUT BAD ANTI CHEAT IS REAL )
     [13741394801] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-SlapBattle.lua"
