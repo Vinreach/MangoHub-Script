@@ -20,7 +20,7 @@ local games = {
     [13741394801] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-SlapBattle.lua"
 }
 
-local scriptLink = games[game.PlaceId]
+local scriptLink = games[game.PlaceId] or games[game.GameId]
 
 WindUI:Notify({
     Title = scriptLink and "Supported Game" or "Not Supported",
