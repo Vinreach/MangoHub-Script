@@ -35,13 +35,4 @@ if scriptLink then
     local success, result = pcall(function()
         loadstring(game:HttpGet(scriptLink))()
     end)
-
-    if not success then
-        WindUI:Notify({
-            Title = "Error Loading Script",
-            Content = tostring(result),
-            Duration = 8,
-            Icon = "x"
-        })
-    end
 end
