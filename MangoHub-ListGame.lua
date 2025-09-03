@@ -23,7 +23,6 @@ local placeId = tostring(game.PlaceId)
 local gameId = tostring(game.GameId)
 local scriptLink = games[placeId] or games[gameId]
 
--- Notify detect game
 WindUI:Notify({
     Title = scriptLink and "Supported Game" or "Not Supported",
     Content = scriptLink and "Detected game!" or "Your current game is not supported.",
@@ -31,8 +30,4 @@ WindUI:Notify({
     Icon = scriptLink and "check" or "warning"
 })
 
-if scriptLink then
-    local success, result = pcall(function()
-        loadstring(game:HttpGet(scriptLink))()
-    end)
-end
+if scriptLink then pcall(loadstring, game:HttpGet(scriptLink)) end
