@@ -19,30 +19,29 @@ local games = {
     ["13741394801"] = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-SlapBattle.lua"
 }
 
--- Universal fallback
-local universalLink = "https://raw.githubusercontent.com/Vinreach/MangoHub-Script/refs/heads/main/MangoHub-Universal.lua"
-
 local placeId = tostring(game.PlaceId)
 local gameId = tostring(game.GameId)
-local scriptLink = games[placeId] or games[gameId] or universalLink
+local scriptLink = games[placeId] or games[gameId]
 
 -- Notify detect game
 WindUI:Notify({
-    Title = scriptLink == universalLink and "Universal Mode" or "Supported Game",
-    Content = scriptLink == universalLink and "Loaded universal script." or "Detected game!",
+    Title = scriptLink and "Supported Game" or "Not Supported",
+    Content = scriptLink and "Detected game!" or "Your current game is not supported.",
     Duration = 5,
-    Icon = scriptLink == universalLink and "globe" or "check"
+    Icon = scriptLink and "check" or "warning"
 })
 
-local success, result = pcall(function()
-    loadstring(game:HttpGet(scriptLink))()
-end)
+if scriptLink then
+    local success, result = pcall(function()
+        loadstring(game:HttpGet(scriptLink))()
+    end)
 
-if not success then
-    WindUI:Notify({
-        Title = "Error Loading Script",
-        Content = tostring(result),
-        Duration = 8,
-        Icon = "x"
-    })
+    if not success then
+        WindUI:Notify({
+            Title = "Error Loading Script",
+            Content = tostring(result),
+            Duration = 8,
+            Icon = "x"
+        })
+    end
 end
