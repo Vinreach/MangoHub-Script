@@ -1,5 +1,5 @@
 -- =================================
--- 🟣 MangoHub Full Auto Mobile Final (GAG Edition)
+-- 🟣 MangoHub Full Auto Mobile Final (GAG Edition) + EVENT TAB
 -- =================================
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -29,9 +29,9 @@ getgenv().AutoBuyGear = false
 local DarkMode = true
 local CurrentLanguage = "Vietnamese"
 
-local Tier1Seeds = {"Carrot","Strawberry","Blueberry","Tomato","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon Fruit","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk","Ember Lily","Sugar Apple","Burning Bud","Giant Pinecone","Elder Strawberry","Romanesco"}
+local Tier1Seeds = {"Carrot","Strawberry","Blueberry","Tomato","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon Fruit","Mango","Grape","Mushroom","Pepper","Cacao","Bean","Pea","Pineapple"}
 local Tier2Seeds = {"Potato","Cocomango","Broccoli","Brussels Sprouts"}
-local GearList = {"Watering Can","Trowel","Recall Wrench","Basic Sprinkler","Advanced Sprinkler","Godly Sprinkler","Master Sprinkler","Grandmaster Sprinkler","Magnifying Glass","Tanning Mirror","Cleaning Spray","Cleansing Pet Shard","Favorite Tool","Harvest Tool","Friendship Pot","Level-Up Lollipop","Trading Ticket","Medium Treat","Medium Toy"}
+local GearList = {"Watering Can","Trowel","Recall Wrench","Basic Sprinkler","Advanced Sprinkler","Godly Sprinkler","Master Sprinkler","Grandmaster Sprinkler","Magnifying Glass","Tanning Mirror","Crown"}
 local PetEggs = {"Common Egg","Uncommon Egg","Rare Egg","Legendary Egg","Bug Egg"}
 
 -- Sell Location
@@ -56,6 +56,22 @@ local MiscSection = Window:Section({Title="Misc",Opened=false})
 -- =========================
 local MainTab = MainSection:Tab({Title="Main",Icon="house"})
 MainTab:Paragraph({Title="MangoHub",Desc="Full Auto Script ✅\nFarm - Sell - Buy - Plant",Image="zap",Color=Color3.fromRGB(0,200,255)})
+
+-- =========================
+-- Event Tab
+-- =========================
+local EventTab = MainSection:Tab({Title="Event",Icon="gift"})
+EventTab:Button({
+    Title = "Auto Submit All Plants (Fairy Fountain)",
+    Description = "Nộp tất cả cây vào Fairy Fountain (sự kiện)",
+    Callback = function()
+        game:GetService("ReplicatedStorage")
+            :WaitForChild("GameEvents")
+            :WaitForChild("FairyService")
+            :WaitForChild("SubmitFairyFountainAllPlants")
+            :FireServer()
+    end
+})
 
 -- =========================
 -- AutoTab
