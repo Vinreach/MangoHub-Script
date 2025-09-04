@@ -1,5 +1,5 @@
 -- =================================
--- 🟣 MangoHub Full Auto Mobile Final (GAG Edition) + EVENT TAB
+-- 🟣 MangoHub Full Auto Mobile Final (GAG Edition) + EVENT TAB (FULL FIXED)
 -- =================================
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -12,6 +12,12 @@ local hrp = character:WaitForChild("HumanoidRootPart")
 -- Load WindUI
 -- =========================
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
+if not WindUI then
+    pcall(function()
+        game.StarterGui:SetCore("SendNotification", {Title="Lỗi", Text="Không tải được WindUI!", Duration=5})
+    end)
+    return
+end
 
 -- =========================
 -- Globals
@@ -20,12 +26,8 @@ getgenv().AutoClickSeedPack = false
 getgenv().AutoOpenMode = "None"
 getgenv().AutoPlant = false
 getgenv().PlantMode = "Player Positions"
-
--- Auto Sell
 getgenv().AutoSellMode = "None" -- None / Always / InventoryFull
 getgenv().InventoryLimit = 200 -- fallback
-
--- Auto Buy
 getgenv().AutoBuySeed = false
 getgenv().SeedTier = "Tier 1"
 getgenv().SelectedSeed = nil
@@ -38,22 +40,29 @@ local DarkMode = true
 local CurrentLanguage = "Vietnamese"
 
 -- =========================
+-- Helper: Safe FindChild chain
+-- =========================
+local function safeFind(obj, ...)
+    for i = 1, select("#", ...) do
+        if not obj then return nil end
+        obj = obj:FindFirstChild(select(i, ...))
+    end
+    return obj
+end
+
+-- =========================
 -- Auto Collect Lists From Game
 -- =========================
 local Tier1Seeds, Tier2Seeds, GearList, PetEggs = {}, {}, {}, {}
 
--- Lấy Seed (Tier 1, Tier 2)
-local seedShop = Workspace:FindFirstChild("Farm")
-    and Workspace.Farm:FindFirstChild("Farm")
-    and Workspace.Farm.Farm.Important:FindFirstChild("SeedShop")
-
+local seedShop = safeFind(Workspace, "Farm", "Farm", "Important", "SeedShop")
 if seedShop then
     for _, tierFolder in pairs(seedShop:GetChildren()) do
-        if tierFolder.Name:match("Tier 1") then
+        if tierFolder.Name == "Tier 1" then
             for _, seed in pairs(tierFolder:GetChildren()) do
                 table.insert(Tier1Seeds, seed.Name)
             end
-        elseif tierFolder.Name:match("Tier 2") then
+        elseif tierFolder.Name == "Tier 2" then
             for _, seed in pairs(tierFolder:GetChildren()) do
                 table.insert(Tier2Seeds, seed.Name)
             end
@@ -61,29 +70,20 @@ if seedShop then
     end
 end
 
--- Lấy Gear
-local gearShop = Workspace:FindFirstChild("Farm")
-    and Workspace.Farm:FindFirstChild("Farm")
-    and Workspace.Farm.Farm.Important:FindFirstChild("GearShop")
-
+local gearShop = safeFind(Workspace, "Farm", "Farm", "Important", "GearShop")
 if gearShop then
     for _, gear in pairs(gearShop:GetChildren()) do
         table.insert(GearList, gear.Name)
     end
 end
 
--- Lấy Pet Egg
-local eggShop = Workspace:FindFirstChild("Farm")
-    and Workspace.Farm:FindFirstChild("Farm")
-    and Workspace.Farm.Farm.Important:FindFirstChild("EggShop")
-
+local eggShop = safeFind(Workspace, "Farm", "Farm", "Important", "EggShop")
 if eggShop then
     for _, egg in pairs(eggShop:GetChildren()) do
         table.insert(PetEggs, egg.Name)
     end
 end
 
--- Nếu trống thì fallback để không crash UI
 if #Tier1Seeds == 0 then Tier1Seeds = {"Carrot","Tomato"} end
 if #Tier2Seeds == 0 then Tier2Seeds = {"Strawberry","Corn"} end
 if #GearList == 0 then GearList = {"Watering Can","Sprinkler"} end
@@ -119,7 +119,12 @@ EventTab:Button({
     Title = "Auto Submit All Plants (Fairy Fountain)",
     Description = "Nộp tất cả cây vào Fairy Fountain (sự kiện)",
     Callback = function()
-        ReplicatedStorage.GameEvents.FairyService.SubmitFairyFountainAllPlants:FireServer()
+        local fairyRemote = safeFind(ReplicatedStorage, "GameEvents", "FairyService", "SubmitFairyFountainAllPlants")
+        if fairyRemote then
+            fairyRemote:FireServer()
+        else
+            WindUI:Notify({Title="Lỗi",Content="Không tìm thấy RemoteEvent!",Icon="x",Duration=2})
+        end
     end
 })
 
@@ -127,6 +132,12 @@ EventTab:Button({
 -- AutoTab
 -- =========================
 local AutoTab = AutoSection:Tab({Title="Automatic",Icon="mouse-pointer-click"})
+
+-- Helper: Inventory count
+local function getInventoryCount()
+    local inv = player:FindFirstChild("FruitInventory") or player:FindFirstChild("Inventory")
+    return inv and #inv:GetChildren() or 0
+end
 
 -- Auto Click
 AutoTab:Paragraph({Title="[AUTO CLICK]",Desc="Tự động click Seed Pack / Chest",Image="mouse-pointer-click",Color=Color3.fromRGB(255,170,0)})
@@ -139,7 +150,7 @@ local fruitStatus = AutoTab:Paragraph({Title="Fruit Status",Desc="Đang load..."
 
 task.spawn(function()
     while task.wait(1) do
-        local count = #(player:FindFirstChild("FruitInventory") or player:FindFirstChild("Inventory") or {}:GetChildren())
+        local count = getInventoryCount()
         local cap = player:FindFirstChild("MaxFruit") and player.MaxFruit.Value or getgenv().InventoryLimit
         fruitStatus:SetDesc("Fruits: "..count.."/"..cap)
     end
@@ -155,7 +166,7 @@ AutoTab:Button({
     Title="Sell Once",
     Description="Bấm để bán fruit 1 lần",
     Callback=function()
-        local SellRemote = ReplicatedStorage.GameEvents:FindFirstChild("Sell_Inventory")
+        local SellRemote = safeFind(ReplicatedStorage, "GameEvents", "Sell_Inventory")
         if SellRemote and hrp then
             local oldCFrame = hrp.CFrame
             hrp.CFrame = SellCFrame
@@ -164,6 +175,8 @@ AutoTab:Button({
             WindUI:Notify({Title="Sell",Content="Đã bán inventory (1 lần)",Icon="credit-card",Duration=2})
             task.wait(0.5)
             hrp.CFrame = oldCFrame
+        else
+            WindUI:Notify({Title="Lỗi",Content="Không tìm thấy Sell_Inventory!",Icon="x",Duration=2})
         end
     end
 })
@@ -208,7 +221,7 @@ SettingsTab:Dropdown({
 -- Helper: Get Random Plant Spots
 -- =========================
 local function getPlantLocations()
-    local plantFolder = Workspace.Farm.Farm.Important:FindFirstChild("Plant_Locations")
+    local plantFolder = safeFind(Workspace, "Farm", "Farm", "Important", "Plant_Locations")
     local canPlantParts = {}
     if plantFolder then
         for _, model in pairs(plantFolder:GetChildren()) do
@@ -227,19 +240,19 @@ task.spawn(function()
         -- Auto Click
         if getgenv().AutoClickSeedPack and getgenv().AutoOpenMode~="None" then
             for _, item in pairs(player.Backpack:GetChildren()) do
-                if item:IsA("Tool") and item.Name:match(getgenv().AutoOpenMode) then
-                    if item:FindFirstChild("Activate") then item.Activate:Fire() else item:Activate() end
+                if item:IsA("Tool") and item.Name == getgenv().AutoOpenMode then
+                    if item:FindFirstChild("Activate") then item.Activate:Fire() else pcall(function() item:Activate() end) end
                 end
             end
         end
 
         -- Auto Sell
-        local count = #(player:FindFirstChild("FruitInventory") or player:FindFirstChild("Inventory") or {}:GetChildren())
+        local count = getInventoryCount()
         local cap = player:FindFirstChild("MaxFruit") and player.MaxFruit.Value or getgenv().InventoryLimit
         local shouldSell = (getgenv().AutoSellMode=="Always") or (getgenv().AutoSellMode=="InventoryFull" and count>=cap)
 
         if shouldSell then
-            local SellRemote = ReplicatedStorage.GameEvents:FindFirstChild("Sell_Inventory")
+            local SellRemote = safeFind(ReplicatedStorage, "GameEvents", "Sell_Inventory")
             if SellRemote and hrp then
                 local oldCFrame=hrp.CFrame
                 hrp.CFrame=SellCFrame
@@ -251,8 +264,10 @@ task.spawn(function()
         end
 
         -- Auto Plant
-        if getgenv().AutoPlant and Workspace.Farm.Farm.Important.Data.Owner.Value==player.Name then
-            local PlantEvent=ReplicatedStorage.GameEvents.Plant_RE
+        local farmData = safeFind(Workspace, "Farm", "Farm", "Important", "Data")
+        local isOwner = farmData and farmData:FindFirstChild("Owner") and farmData.Owner.Value == player.Name
+        if getgenv().AutoPlant and isOwner then
+            local PlantEvent=safeFind(ReplicatedStorage,"GameEvents","Plant_RE")
             local seeds = (getgenv().SeedTier=="Tier 1") and Tier1Seeds or Tier2Seeds
             for _, seed in ipairs(seeds) do
                 local pos=hrp.Position
@@ -260,26 +275,26 @@ task.spawn(function()
                     local spots=getPlantLocations()
                     if #spots>0 then pos=spots[math.random(1,#spots)] end
                 end
-                PlantEvent:FireServer(pos,seed)
+                if PlantEvent then PlantEvent:FireServer(pos,seed) end
             end
         end
 
         -- Auto Buy Seed
         if getgenv().AutoBuySeed and getgenv().SelectedSeed then
-            local BuySeed=ReplicatedStorage.GameEvents.BuySeedStock
-            BuySeed:FireServer(getgenv().SeedTier,getgenv().SelectedSeed)
+            local BuySeed=safeFind(ReplicatedStorage,"GameEvents","BuySeedStock")
+            if BuySeed then BuySeed:FireServer(getgenv().SeedTier,getgenv().SelectedSeed) end
         end
 
         -- Auto Buy Pet Egg
         if getgenv().AutoBuyPetEgg and getgenv().SelectedEgg then
-            local BuyEgg=ReplicatedStorage.GameEvents.BuyPetEgg
-            BuyEgg:FireServer(getgenv().SelectedEgg)
+            local BuyEgg=safeFind(ReplicatedStorage,"GameEvents","BuyPetEgg")
+            if BuyEgg then BuyEgg:FireServer(getgenv().SelectedEgg) end
         end
 
         -- Auto Buy Gear
         if getgenv().AutoBuyGear and getgenv().SelectedGear then
-            local BuyGear=ReplicatedStorage.GameEvents.BuyGearStock
-            BuyGear:FireServer(getgenv().SelectedGear)
+            local BuyGear=safeFind(ReplicatedStorage,"GameEvents","BuyGearStock")
+            if BuyGear then BuyGear:FireServer(getgenv().SelectedGear) end
         end
     end
 end)
