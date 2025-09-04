@@ -38,12 +38,56 @@ local DarkMode = true
 local CurrentLanguage = "Vietnamese"
 
 -- =========================
--- Data Lists
+-- Auto Collect Lists From Game
 -- =========================
-local Tier1Seeds = {"Carrot","Strawberry","Blueberry","Tomato","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon Fruit","Mango","Grape","Mushroom","Pepper","Cacao","Bean","Pea","Pineapple"}
-local Tier2Seeds = {"Potato","Cocomango","Broccoli","Brussels Sprouts"}
-local GearList = {"Watering Can","Trowel","Recall Wrench","Basic Sprinkler","Advanced Sprinkler","Godly Sprinkler","Master Sprinkler","Grandmaster Sprinkler","Magnifying Glass","Tanning Mirror","Crown"}
-local PetEggs = {"Common Egg","Uncommon Egg","Rare Egg","Legendary Egg","Bug Egg"}
+local Tier1Seeds, Tier2Seeds, GearList, PetEggs = {}, {}, {}, {}
+
+-- Lấy Seed (Tier 1, Tier 2)
+local seedShop = Workspace:FindFirstChild("Farm")
+    and Workspace.Farm:FindFirstChild("Farm")
+    and Workspace.Farm.Farm.Important:FindFirstChild("SeedShop")
+
+if seedShop then
+    for _, tierFolder in pairs(seedShop:GetChildren()) do
+        if tierFolder.Name:match("Tier 1") then
+            for _, seed in pairs(tierFolder:GetChildren()) do
+                table.insert(Tier1Seeds, seed.Name)
+            end
+        elseif tierFolder.Name:match("Tier 2") then
+            for _, seed in pairs(tierFolder:GetChildren()) do
+                table.insert(Tier2Seeds, seed.Name)
+            end
+        end
+    end
+end
+
+-- Lấy Gear
+local gearShop = Workspace:FindFirstChild("Farm")
+    and Workspace.Farm:FindFirstChild("Farm")
+    and Workspace.Farm.Farm.Important:FindFirstChild("GearShop")
+
+if gearShop then
+    for _, gear in pairs(gearShop:GetChildren()) do
+        table.insert(GearList, gear.Name)
+    end
+end
+
+-- Lấy Pet Egg
+local eggShop = Workspace:FindFirstChild("Farm")
+    and Workspace.Farm:FindFirstChild("Farm")
+    and Workspace.Farm.Farm.Important:FindFirstChild("EggShop")
+
+if eggShop then
+    for _, egg in pairs(eggShop:GetChildren()) do
+        table.insert(PetEggs, egg.Name)
+    end
+end
+
+-- Nếu trống thì fallback để không crash UI
+if #Tier1Seeds == 0 then Tier1Seeds = {"Carrot","Tomato"} end
+if #Tier2Seeds == 0 then Tier2Seeds = {"Strawberry","Corn"} end
+if #GearList == 0 then GearList = {"Watering Can","Sprinkler"} end
+if #PetEggs == 0 then PetEggs = {"Common Egg","Rare Egg"} end
 
 -- Sell Location
 local SellCFrame = CFrame.new(
@@ -164,7 +208,7 @@ SettingsTab:Dropdown({
 -- Helper: Get Random Plant Spots
 -- =========================
 local function getPlantLocations()
-    local plantFolder = workspace.Farm.Farm.Important:FindFirstChild("Plant_Locations")
+    local plantFolder = Workspace.Farm.Farm.Important:FindFirstChild("Plant_Locations")
     local canPlantParts = {}
     if plantFolder then
         for _, model in pairs(plantFolder:GetChildren()) do
@@ -207,7 +251,7 @@ task.spawn(function()
         end
 
         -- Auto Plant
-        if getgenv().AutoPlant and workspace.Farm.Farm.Important.Data.Owner.Value==player.Name then
+        if getgenv().AutoPlant and Workspace.Farm.Farm.Important.Data.Owner.Value==player.Name then
             local PlantEvent=ReplicatedStorage.GameEvents.Plant_RE
             local seeds = (getgenv().SeedTier=="Tier 1") and Tier1Seeds or Tier2Seeds
             for _, seed in ipairs(seeds) do
